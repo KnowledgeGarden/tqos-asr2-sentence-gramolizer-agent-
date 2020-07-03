@@ -7,7 +7,7 @@ package devtests;
  * @author jackpark
  *
  */
-public class SGTextFramework {
+public class SGTestFramework {
 
 	/**
 	 * @param args
