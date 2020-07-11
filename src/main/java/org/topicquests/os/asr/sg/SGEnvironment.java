@@ -4,6 +4,7 @@
 package org.topicquests.os.asr.sg;
 
 import org.topicquests.hyperbrane.WordGramCache;
+import org.topicquests.os.asr.sg.api.ISGAgent;
 import org.topicquests.os.asr.sg.api.ISGModel;
 import org.topicquests.os.asr.wordgram.WordGramEnvironment;
 import org.topicquests.os.asr.wordgram.api.IWordGramAgentModel;
@@ -19,6 +20,7 @@ public class SGEnvironment extends RootEnvironment {
 	private WordGramCache wgCache;
 	private final int cacheSize = 8192;
 	private ISGModel model;
+	private ISGAgent agent;
 
 	/**
 	 */
@@ -27,8 +29,12 @@ public class SGEnvironment extends RootEnvironment {
 		isShutdown = false;
 		wordGramEnvironment = new WordGramEnvironment("wordgram-props.xml", "logger.properties");
 		wgCache = new WordGramCache(this, cacheSize);
+		agent = new SGAgent(this);
 	}
 	
+	public ISGAgent getAgent() {
+		return agent;
+	}
 	public WordGramCache getWordGramCache() {
 		return wgCache;
 	}
@@ -43,6 +49,7 @@ public class SGEnvironment extends RootEnvironment {
 		System.out.println("SGEnvironment.shutDown "+isShutdown);
 		if (!isShutdown) {
 			//TODO
+			agent.shutDown();
 			isShutdown = true;
 		}
 
