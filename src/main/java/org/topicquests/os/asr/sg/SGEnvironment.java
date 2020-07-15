@@ -29,9 +29,21 @@ public class SGEnvironment extends RootEnvironment {
 		isShutdown = false;
 		wordGramEnvironment = new WordGramEnvironment("wordgram-props.xml", "logger.properties");
 		wgCache = new WordGramCache(this, cacheSize);
+		model = new SGModel(this);
 		agent = new SGAgent(this);
+			
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			
+			@Override
+			public void run() {
+				shutDown();
+			}
+		});
 	}
 	
+	public ISGModel getModel() {
+		return model;
+	}
 	public ISGAgent getAgent() {
 		return agent;
 	}

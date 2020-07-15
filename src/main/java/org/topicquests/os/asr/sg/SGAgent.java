@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.topicquests.os.asr.sg.api.ISGAgent;
+import org.topicquests.os.asr.sg.api.ISGModel;
 
 /**
  * @author jackpark
@@ -15,6 +16,7 @@ import org.topicquests.os.asr.sg.api.ISGAgent;
 public class SGAgent implements ISGAgent {
 	private SGEnvironment environment;
 	private boolean isRunning = true;
+	private ISGModel model;
 	private Worker worker;
 	private List<List<String>> sentences;
 	/**
@@ -24,6 +26,7 @@ public class SGAgent implements ISGAgent {
 		environment = env;
 		isRunning = true;
 		sentences = new ArrayList<List<String>>();
+		model = environment.getModel();
 		worker = new Worker();
 		worker.start();
 	}
@@ -33,7 +36,9 @@ public class SGAgent implements ISGAgent {
 		List<String> l = new ArrayList<String>();
 		l.add(sentenceId);
 		l.add(newSentence);
+		environment.logDebug("Agent got "+sentenceId);
 		synchronized(sentences) {
+			environment.logDebug("Agent did "+sentenceId);
 			sentences.add(l);
 			sentences.notify();
 		}
@@ -46,8 +51,20 @@ public class SGAgent implements ISGAgent {
 			System.out.println("Agent starting");
 			List<String>aSentence = null;
 			while (isRunning) {
-				//TODO
-				yield();
+				synchronized(sentences) {
+					if (sentences.isEmpty()) {
+						try {
+							sentences.wait();
+						} catch (Exception e) {}
+					} else {
+						aSentence = sentences.remove(0);
+					}
+				}
+				if (isRunning && aSentence != null) {
+					environment.logDebug("Agent doing "+aSentence);
+
+					model.processSentence(aSentence);
+				}
 			}
 			kill();
 		}
